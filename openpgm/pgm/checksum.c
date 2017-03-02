@@ -56,8 +56,10 @@ static uint16_t do_csum_64bit (const void*, uint16_t, uint32_t) PGM_GNUC_PURE;
 static uint16_t do_csum_vector (const void*, uint16_t, uint32_t) PGM_GNUC_PURE;
 #endif
 /* MMX - First generation SIMD instructions, MMX registers are shared with x87 FPU. */
+#if defined(WITH_MMX)
 #if defined(__MMX__) || defined(_M_AMD64) || defined(_M_X64)
 static uint16_t do_csum_mmx (const void*, uint16_t, uint32_t) PGM_GNUC_PURE;
+#endif
 #endif
 /* 3DNow! - AMD's twist on MMX, abandoned except for PREFETCH & PREFETCHW. */
 /* SSE - Integer math support only extends the set of 64-bit operations. */
@@ -841,6 +843,7 @@ do_csumcpy_vector (
 }
 #endif
 
+#if defined(WITH_MMX)
 #if defined(__MMX__) || defined(_M_AMD64) || defined(_M_X64)
 static
 uint16_t
@@ -978,6 +981,7 @@ do_csumcpy_mmx (
 		acc = ((acc & 0xff) << 8) | ((acc & 0xff00) >> 8);
 	return (uint16_t)acc;
 }
+#endif
 #endif
 
 #if defined(__SSE2__) || defined(_M_AMD64) || defined(_M_X64)
@@ -1507,6 +1511,7 @@ pgm_checksum_init (const pgm_cpu_t* cpu)
 		return;
 	}
 #endif
+#if defined(WITH_MMX)
 #if defined(__MMX__) || defined(_M_AMD64) || defined(_M_X64)
 	if (cpu->has_mmx) {
 		pgm_minor (_("Using MMX instructions for checksum."));
@@ -1514,6 +1519,7 @@ pgm_checksum_init (const pgm_cpu_t* cpu)
 		do_csumcpy = do_csumcpy_mmx;
 		return;
 	}
+#endif
 #endif
 
 /* defaults to 16-bit checksum and memcpy for SPARC. */
