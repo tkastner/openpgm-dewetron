@@ -3,6 +3,8 @@
 cmake_minimum_required (VERSION 3.6.0)
 project (OpenPGM)
 
+include(CMakeLists.dewetron)
+
 #-----------------------------------------------------------------------------
 # force off-tree build
 
@@ -146,6 +148,69 @@ set(headers
 	include/pgm/zinttypes.h
 )
 
+source_group("Public Header Files" FILES ${headers})
+
+set(private_headers
+	include/impl/checksum.h
+	include/impl/engine.h
+	include/impl/errno.h
+	include/impl/fixed.h
+	include/impl/framework.h
+	include/impl/galois.h
+	include/impl/getifaddrs.h
+	include/impl/getnetbyname.h
+	include/impl/getnodeaddr.h
+	include/impl/getprotobyname.h
+	include/impl/get_nprocs.h
+	include/impl/hashtable.h
+	include/impl/histogram.h
+	include/impl/i18n.h
+	include/impl/indextoaddr.h
+	include/impl/indextoname.h
+	include/impl/inet_lnaof.h
+	include/impl/inet_network.h
+	include/impl/ip.h
+	include/impl/list.h
+	include/impl/math.h
+	include/impl/md5.h
+	include/impl/mem.h
+	include/impl/messages.h
+	include/impl/nametoindex.h
+	include/impl/net.h
+	include/impl/net_os.h
+	include/impl/notify.h
+	include/impl/packet_parse.h
+	include/impl/packet_test.h
+	include/impl/pgmMIB.h
+	include/impl/pgmMIB_columns.h
+	include/impl/pgmMIB_enums.h
+	include/impl/processor.h
+	include/impl/queue.h
+	include/impl/rand.h
+	include/impl/rate_control.h
+	include/impl/receiver.h
+	include/impl/reed_solomon.h
+	include/impl/rwspinlock.h
+	include/impl/rxw.h
+	include/impl/security.h
+	include/impl/slist.h
+	include/impl/sn.h
+	include/impl/sockaddr.h
+	include/impl/socket.h
+	include/impl/source.h
+	include/impl/sqn_list.h
+	include/impl/string.h
+	include/impl/thread.h
+	include/impl/ticket.h
+	include/impl/time.h
+	include/impl/timer.h
+	include/impl/tsi.h
+	include/impl/txw.h
+	include/impl/wsastrerror.h
+	include/impl/net_os.h
+)
+source_group("Private Header Files" FILES ${private_headers})
+
 add_definitions(
 	-DUSE_TICKET_SPINLOCK
 	-DUSE_DUMB_RWSPINLOCK
@@ -171,10 +236,12 @@ set(sources
         ${CMAKE_CURRENT_BINARY_DIR}/version.c
 )
 
+source_group("Source Files" FILES ${sources})
+
 #-----------------------------------------------------------------------------
 # output
 
-add_library(libpgm STATIC ${sources})
+add_library(libpgm STATIC ${sources} ${headers} ${private_headers})
 set_target_properties(libpgm PROPERTIES
 	RELEASE_POSTFIX "${_pgm_COMPILER}-mt-${OPENPGM_VERSION_MAJOR}_${OPENPGM_VERSION_MINOR}_${OPENPGM_VERSION_MICRO}"
 	DEBUG_POSTFIX "${_pgm_COMPILER}-mt-gd-${OPENPGM_VERSION_MAJOR}_${OPENPGM_VERSION_MINOR}_${OPENPGM_VERSION_MICRO}")
