@@ -1,0 +1,6 @@
+# emacs backups
+*.*~
+
+# temporary build directories
+build64/
+build/
