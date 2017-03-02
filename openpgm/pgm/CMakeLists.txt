@@ -1,9 +1,14 @@
 # CMake build script for OpenPGM on Windows
 
-cmake_minimum_required (VERSION 3.6.0)
+cmake_minimum_required (VERSION 2.8)
 project (OpenPGM)
 
-include(CMakeLists.dewetron)
+#-----------------------------------------------------------------------------
+# adoptions for DEWETRON build environment
+# eg: all binaries in one directory
+if (DEWETRON_BUILD)
+  include(CMakeLists.dewetron)
+endif()
 
 #-----------------------------------------------------------------------------
 # force off-tree build
@@ -248,12 +253,19 @@ set_target_properties(libpgm PROPERTIES
 
 add_executable(purinsend examples/purinsend.c examples/getopt.c examples/getopt_long.c)
 target_link_libraries(purinsend libpgm)
+set_target_properties(purinsend PROPERTIES FOLDER "Examples")
+
 add_executable(purinrecv examples/purinrecv.c examples/getopt.c examples/getopt_long.c)
 target_link_libraries(purinrecv libpgm)
+set_target_properties(purinrecv PROPERTIES FOLDER "Examples")
+
 add_executable(daytime examples/daytime.c examples/getopt.c examples/getopt_long.c)
 target_link_libraries(daytime libpgm)
+set_target_properties(daytime PROPERTIES FOLDER "Examples")
+
 add_executable(shortcakerecv examples/shortcakerecv.c examples/async.c examples/getopt.c examples/getopt_long.c)
 target_link_libraries(shortcakerecv libpgm)
+set_target_properties(shortcakerecv PROPERTIES FOLDER "Examples")
 
 #-----------------------------------------------------------------------------
 # installer

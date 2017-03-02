@@ -1,21 +1,66 @@
 #
-# define SW_APP_ROOT
-get_filename_component(SW_APP_ROOT ../../../.. ABSOLUTE)
-
-# expand cmake search path to check for project settings
-set(CMAKE_MODULE_PATH
-  ${CMAKE_MODULE_PATH}
-  ${SW_APP_ROOT}/build_util/cmake
-  ${CMAKE_CURRENT_SOURCE_DIR}
-  )
+# Settings for DEWETRON build environment
+#
 
 #
-# Speed up compile time
+# Use this macro to set a common output directory for all artifacts
+# of a build.
+#
+macro(SetCommonOutputDirectory)
+  if(MSVC)
+    if (NOT CMAKE_LIBRARY_OUTPUT_DIRECTORY)
+      set(CMAKE_LIBRARY_OUTPUT_DIRECTORY    ${CMAKE_CURRENT_BINARY_DIR})
+    endif()
+    if (NOT CMAKE_ARCHIVE_OUTPUT_DIRECTORY)
+      set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY    ${CMAKE_CURRENT_BINARY_DIR})
+    endif()
+    if (NOT CMAKE_RUNTIME_OUTPUT_DIRECTORY)
+      set(CMAKE_RUNTIME_OUTPUT_DIRECTORY    ${CMAKE_CURRENT_BINARY_DIR})
+    endif()
+  elseif(APPLE)
+    if (XCODE_VERSION)
+      if (NOT CMAKE_LIBRARY_OUTPUT_DIRECTORY)
+        set(CMAKE_LIBRARY_OUTPUT_DIRECTORY    ${CMAKE_CURRENT_BINARY_DIR})
+      endif()
+      if (NOT CMAKE_ARCHIVE_OUTPUT_DIRECTORY)
+        set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY    ${CMAKE_CURRENT_BINARY_DIR})
+      endif()
+      if (NOT CMAKE_RUNTIME_OUTPUT_DIRECTORY)
+        set(CMAKE_RUNTIME_OUTPUT_DIRECTORY    ${CMAKE_CURRENT_BINARY_DIR})
+      endif()
+    else()
+      if (NOT CMAKE_LIBRARY_OUTPUT_DIRECTORY)
+        set(CMAKE_LIBRARY_OUTPUT_DIRECTORY    ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE})
+      endif()
+      if (NOT CMAKE_ARCHIVE_OUTPUT_DIRECTORY)
+        set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY    ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE})
+      endif()
+      if (NOT CMAKE_RUNTIME_OUTPUT_DIRECTORY)
+        set(CMAKE_RUNTIME_OUTPUT_DIRECTORY    ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE})
+      endif()
+    endif()
+  else()
+    if (NOT CMAKE_LIBRARY_OUTPUT_DIRECTORY)
+      set(CMAKE_LIBRARY_OUTPUT_DIRECTORY    ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE})
+    endif()
+    if (NOT CMAKE_ARCHIVE_OUTPUT_DIRECTORY)
+      set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY    ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE})
+    endif()
+    if (NOT CMAKE_RUNTIME_OUTPUT_DIRECTORY)
+      set(CMAKE_RUNTIME_OUTPUT_DIRECTORY    ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE})
+    endif()
+  endif()
+
+endmacro()
+
+#
+# Enable target folders in IDEs
+set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+
+
+#
+# Speed up compile time for Visual Studio
 set(MSVC_BUILD_USING_MP TRUE)
-
-#
-# Get general cmake settings
-include(CMakeSettings)
 
 #
 # Set the output directory so that all artefacts will be at the same place
