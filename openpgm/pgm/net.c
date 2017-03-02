@@ -36,6 +36,7 @@
 #include <impl/net.h>
 #include <impl/socket.h>
 
+#include "impl/net_os.h"
 
 //#define NET_DEBUG
 
@@ -108,7 +109,7 @@ pgm_sendto_hops (
 	if (-1 != hops)
 		pgm_sockaddr_multicast_hops (send_sock, sock->send_gsr.gsr_group.ss_family, hops);
 
-	ssize_t sent = sendto (send_sock, buf, len, 0, to, (socklen_t)tolen);
+	ssize_t sent = (*priv_sendto)(send_sock, buf, len, 0, to, (socklen_t)tolen);
 	pgm_debug ("sendto returned %" PRIzd, sent);
 	if (sent < 0) {
 		int save_errno = pgm_get_last_sock_error();
@@ -141,7 +142,7 @@ pgm_sendto_hops (
 #endif /* HAVE_POLL */
 			if (ready > 0)
 			{
-				sent = sendto (send_sock, buf, len, 0, to, (socklen_t)tolen);
+				sent = (*priv_sendto)(send_sock, buf, len, 0, to, (socklen_t)tolen);
 				if ( sent < 0 )
 				{
 					char errbuf[1024];

@@ -104,6 +104,7 @@ pgm_init (
 	pgm_thread_init();
 	pgm_mem_init();
 	pgm_rand_init();
+    pgm_send_recv_init();
 
 #ifdef _WIN32
 	WORD wVersionRequested = MAKEWORD (2, 2);

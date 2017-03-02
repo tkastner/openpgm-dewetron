@@ -21,13 +21,18 @@
 int(*priv_sendto)(SOCKET, const char*, int, int, const struct sockaddr*, int);
 int(*priv_recvfrom)(SOCKET, char*, int, int, const struct sockaddr*, int);
 
+static int empty_sendto(SOCKET s, const char * buf, int len, int flags, const struct sockaddr *to, int tolen)
+{
+    return 1;
+}
+
+static int empty_recvfrom(SOCKET s, char * buf, int len, int flags, struct sockaddr * from, int * fromlen)
+{
+    return 1;
+}
+
 #ifdef _WIN32
-    int wsa_sendto(SOCKET s,
-        const char * buf,
-        int len,
-        int flags,
-        const struct sockaddr *to,
-        int tolen)
+    int wsa_sendto(SOCKET s, const char * buf, int len, int flags, const struct sockaddr *to, int tolen)
     {
         WSABUF send_buf;
         DWORD bytes_sent = 0;
@@ -35,26 +40,12 @@ int(*priv_recvfrom)(SOCKET, char*, int, int, const struct sockaddr*, int);
 
         send_buf.buf = (char*)buf;
         send_buf.len = len;
-        int rc = WSASendTo(s,
-            &send_buf,
-            1,
-            &bytes_sent,
-            flags,
-            to,
-            tolen,
-            NULL,
-            NULL);
+        int rc = WSASendTo(s, &send_buf, 1, &bytes_sent, flags, to, tolen, NULL, NULL);
 
         return bytes_sent;
     }
 
-    static int wsa_recvfrom(
-        SOCKET s,
-        char * buf,
-        int len,
-        int flags,
-        struct sockaddr * from,
-        int * fromlen)
+    static int wsa_recvfrom(SOCKET s, char * buf, int len, int flags, struct sockaddr * from, int * fromlen)
     {
         int err = 0;
         WSABUF rcv_buf;
@@ -64,62 +55,29 @@ int(*priv_recvfrom)(SOCKET, char*, int, int, const struct sockaddr*, int);
         DWORD bytes_received = 0;
         DWORD lpflags = flags;
 
-        int rc = WSARecvFrom(s,
-            &rcv_buf,
-            1,
-            &bytes_received,
-            &lpflags,
-            from,
-            fromlen,
-            NULL,
-            NULL
-            );
+        int rc = WSARecvFrom(s, &rcv_buf, 1, &bytes_received, &lpflags, from, fromlen, NULL, NULL);
 
         return bytes_received;
     }
 
 
-    static int default_sendto(SOCKET s,
-        const char * buf,
-        int len,
-        int flags,
-        const struct sockaddr *to,
-        int tolen)
+    static int default_sendto(SOCKET s, const char * buf, int len, int flags, const struct sockaddr *to, int tolen)
     {
         return sendto(s, buf, len, flags, to, tolen);
     }
 
-    static int default_recvfrom(
-        SOCKET s,
-        char * buf,
-        int len,
-        int flags,
-        struct sockaddr * from,
-        int * fromlen)
+    static int default_recvfrom(SOCKET s, char * buf, int len, int flags, struct sockaddr * from, int * fromlen)
     {
         return recvfrom(s, buf, len, flags, from, fromlen);
     }
-
-
 #else // NOT _WIN32
 
-    static int default_sendto(SOCKET s,
-        const char * buf,
-        int len,
-        int flags,
-        const struct sockaddr *to,
-        int tolen)
+    static int default_sendto(SOCKET s, const char * buf, int len, int flags, const struct sockaddr *to, int tolen)
     {
         return sendto(s, buf, len, flags, to, tolen);
     }
 
-    static int default_recvfrom(
-        SOCKET s,
-        char * buf,
-        int len,
-        int flags,
-        struct sockaddr * from,
-        int * fromlen)
+    static int default_recvfrom( SOCKET s, char * buf, int len, int flags, struct sockaddr * from, int * fromlen)
     {
         return recvfrom(s, buf, len, flags, from, (socklen_t*)&fromlen);
     }
@@ -130,20 +88,33 @@ void pgm_send_recv_init()
     priv_sendto = &default_sendto;
     priv_recvfrom = &default_recvfrom;
 
-#ifdef _WIN32
-    char* env_wsa;
+    char* pgm_send;
     size_t envlen;
 
-    const errno_t err = pgm_dupenv_s (&env_wsa, &envlen, "PGM_USE_WSA");
+    const errno_t err = pgm_dupenv_s (&pgm_send, &envlen, "PGM_SEND");
     if (0 == err && envlen > 0) 
     {
-        priv_sendto = &wsa_sendto;
-        priv_recvfrom = &wsa_recvfrom;
-        pgm_trace(PGM_LOG_LEVEL_TRACE, "Using WSAsendto...");
-    }
-    else
-    {
-    }
-    pgm_free (env_wsa);
+        switch (pgm_send[0])
+        {
+#ifdef _WIN32
+        case 'W':
+        {
+            priv_sendto = &wsa_sendto;
+            priv_recvfrom = &wsa_recvfrom;
+            pgm_trace(PGM_LOG_LEVEL_TRACE, "PGM_SEND: WSA");
+            break;
+        }
 #endif
+        case 'N':
+        {
+            priv_sendto = &wsa_sendto;
+            priv_recvfrom = &wsa_recvfrom;
+            pgm_trace(PGM_LOG_LEVEL_TRACE, "PGM_SEND: NONE");
+            break;
+        }
+        default:
+            pgm_trace(PGM_LOG_LEVEL_TRACE, "PGM_SEND: DEFAULT");
+        }
+    }
+    pgm_free (pgm_send);
 }
