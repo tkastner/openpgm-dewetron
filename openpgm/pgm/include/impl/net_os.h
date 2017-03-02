@@ -23,12 +23,12 @@ int(*priv_recvfrom)(SOCKET, char*, int, int, const struct sockaddr*, int);
 
 static int empty_sendto(SOCKET s, const char * buf, int len, int flags, const struct sockaddr *to, int tolen)
 {
-    return 1;
+    return len;
 }
 
 static int empty_recvfrom(SOCKET s, char * buf, int len, int flags, struct sockaddr * from, int * fromlen)
 {
-    return 1;
+    return len;
 }
 
 #ifdef _WIN32
@@ -107,8 +107,8 @@ void pgm_send_recv_init()
 #endif
         case 'N':
         {
-            priv_sendto = &wsa_sendto;
-            priv_recvfrom = &wsa_recvfrom;
+            priv_sendto = &empty_sendto;
+            priv_recvfrom = &empty_recvfrom;
             pgm_trace(PGM_LOG_LEVEL_TRACE, "PGM_SEND: NONE");
             break;
         }
