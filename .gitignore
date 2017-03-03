@@ -4,3 +4,43 @@
 # temporary build directories
 build64/
 build/
+
+#generated files
+openpgm/pgm/include/config.h
+openpgm/pgm/version.c
+openpgm/pgm/libpgm.la
+openpgm/pgm/openpgm.spec
+openpgm/pgm/openpgm-5.2.pc
+
+# build output
+.libs
+libpgm_noinst*
+
+# autotools
+m4
+Makefile
+bootstrap.log
+config.status
+libtool
+Makefile.in
+ar-lib
+mdate-sh
+py-compile
+test-driver
+ylwrap
+ltmain.sh
+
+autom4te.cache
+autoscan.log
+autoscan-*.log
+aclocal.m4
+compile
+config.guess
+config.h.in
+config.sub
+configure
+configure.scan
+depcomp
+install-sh
+missing
+stamp-h1
