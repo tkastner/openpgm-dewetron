@@ -1113,7 +1113,7 @@ do_csumcpy_sse2 (
 
 		sum = _mm_add_epi32 (sum, lo);
 		sum = _mm_add_epi32 (sum, hi);
-		_mm_store_si128((__m128i*)dstbuf, tmp);
+		_mm_storeu_si128((__m128i*)dstbuf, tmp);
 		srcbuf = &srcbuf[ 16 ];
 		dstbuf = &dstbuf[ 16 ];
 	}
